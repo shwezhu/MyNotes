@@ -1,0 +1,171 @@
+# Function Pointer
+
+Function pointer in C++ is a variable that stores the address of a function. 
+
+## Syntax of Function Pointer
+
+```c
+#include <stdio.h>
+// A normal function with an int parameter
+// and void return type
+void fun(int a) {
+    printf("Value of a is %d\n", a);
+}
+
+int main()
+{
+    // fun_ptr is a pointer to function fun() 
+    void (*fun_ptr)(int) = &fun;
+  
+    /* The above line is equivalent of following two
+       void (*fun_ptr)(int);
+       fun_ptr = &fun; 
+    */
+    
+    // Invoking fun() using fun_ptr
+    (*fun_ptr)(10);
+  
+    return 0;
+}
+```
+
+Why do we need an extra bracket around function pointers like fun_ptr in above example?
+If we remove bracket, then the expression  `void (*fun_ptr)(int)`  becomes  `void *fun_ptr(int)`  which is declaration of a function that returns void pointer. 
+
+## Some interesting facts about function pointers.
+
+ **1)** Unlike normal pointers, a function pointer points to code, not data. Typically a function pointer stores the start of executable code.
+
+**2)** Unlike normal pointers, we do not allocate de-allocate memory using function pointers.
+
+**3)** A function’s name can also be used to get functions’ address. For example, in the below program, we have removed address operator ‘&’ in assignment. We have also changed function call by removing *, the program still works.
+
+```c
+#include <stdio.h>
+// A normal function with an int parameter
+// and void return type
+void fun(int a) {
+	printf("Value of a is %d\n", a);
+}
+
+int main()
+{
+	void (*fun_ptr)(int) = fun; // & removed
+	fun_ptr(10); // * removed
+	return 0;
+}
+
+```
+
+Output:
+
+```c
+Value of a is 10
+```
+
+**4)** Like normal pointers, we can have an array of function pointers. Below example in point 5 shows syntax for array of pointers.
+
+**5)** Function pointer can be used in place of switch case. For example, in below program, user is asked for a choice between 0 and 2 to do different tasks.
+
+```c
+#include <stdio.h>
+void add(int a, int b) {
+	printf("Addition is %d\n", a+b);
+}
+void subtract(int a, int b) {
+	printf("Subtraction is %d\n", a-b);
+}
+void multiply(int a, int b) {
+	printf("Multiplication is %d\n", a*b);
+}
+
+int main()
+{
+	// fun_ptr_arr is an array of function pointers
+	void (*fun_ptr_arr[])(int, int) = {add, subtract, multiply};
+	unsigned int ch, a = 15, b = 10;
+
+	printf("Enter Choice: 0 for add, 1 for subtract and 2 "
+			"for multiply\n");
+	scanf("%d", &ch);
+
+	if (ch > 2) return 0;
+
+	(*fun_ptr_arr[ch])(a, b);
+
+	return 0;
+}
+```
+
+Output:
+
+```
+Enter Choice: 0 for add, 1 for subtract and 2 for multiply
+2
+Multiplication is 150 
+```
+
+**6)** Like normal data pointers, a function pointer can be passed as an argument and can also be returned from a function.
+For example, consider the following C program where wrapper() receives a void fun() as parameter and calls the passed function.
+
+```c
+// A simple C program to show function pointers as parameter
+#include <stdio.h>
+
+// Two simple functions
+void fun1() { printf("Fun1\n"); }
+void fun2() { printf("Fun2\n"); }
+
+// A function that receives a simple function
+// as parameter and calls the function
+void wrapper(void (*fun)())
+{
+	fun();
+}
+
+int main()
+{
+	wrapper(fun1);
+	wrapper(fun2);
+	return 0;
+}
+
+```
+
+This point in particular is very useful in C. In C, we can use function pointers to avoid code redundancy.  Not only this, with function pointers and void pointers, it is possible to use qsort for any data type.
+
+```c
+// An example for qsort and comparator
+#include <stdio.h>
+#include <stdlib.h>
+
+// A sample comparator function that is used
+// for sorting an integer array in ascending order.
+// To sort any array for any other data type and/or
+// criteria, all we need to do is write more compare
+// functions. And we can use the same qsort()
+int compare (const void * a, const void * b) {
+return ( *(int*)a - *(int*)b );
+}
+
+int main ()
+{
+int arr[] = {10, 5, 15, 12, 90, 80};
+int n = sizeof(arr)/sizeof(arr[0]), i;
+
+qsort (arr, n, sizeof(int), compare);
+
+for (i=0; i<n; i++)
+	printf ("%d ", arr[i]);
+return 0;
+}
+
+```
+
+Output:
+
+```
+5 10 12 15 80 90
+```
+
+**7)** Many object oriented features in C++ are implemented using function pointers in C. For example [virtual functions](https://www.geeksforgeeks.org/virtual-functions-and-runtime-polymorphism-in-c-set-1-introduction/). Class methods are another example implemented using function pointers. 
